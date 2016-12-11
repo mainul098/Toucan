@@ -29,7 +29,7 @@
         <div class="collapse navbar-collapse" id="topNavBar">
             <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <a href="{% url 'twitter:profile_user' %}">
+                    <a href="{% url 'twitter:profile_user' user.id%}">
                         <span class="glyphicon glyphicon-home" aria-hidden="true"></span>&nbsp; {% filter force_escape|upper %} {{ user.get_full_name}}{% endfilter %}
                     </a>
                 </li>

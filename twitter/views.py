@@ -1,15 +1,12 @@
-from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
+
+from twitter.forms import TweetFrom
+from twitter.models import Follow
 from .forms import UserForm
 from .models import Tweet
-
-
-def index(request):
-    if not request.user.is_authenticated():
-        return render(request, 'twitter/login.html')
-    else:
-        latest_tweets = Tweet.objects.filter(user__followers__user=request.user).order_by('-modified_date')[:10]
-        return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
 
 
 def logout_user(request):
@@ -56,6 +53,48 @@ def register_user(request):
     return render(request, 'twitter/register.html', context)
 
 
-def profile(request):
-    latest_tweets = Tweet.objects.filter(user=request.user)
+@login_required(login_url='twitter:login_user')
+def index(request):
+    if not request.user.is_authenticated():
+        return render(request, 'twitter/login.html')
+    else:
+        latest_tweets = Tweet.objects.filter(user__followers__user=request.user).order_by('-modified_date') | Tweet.objects.filter(user=request.user).order_by('-modified_date')
+        candidate_follower = User.objects.exclude(followers__user=request.user).exclude(username=request.user.username)
+        return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets, 'candidate_follower': candidate_follower})
+
+
+@login_required(login_url='twitter:login_user')
+def profile(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    latest_tweets = Tweet.objects.filter(user=user)
     return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
+
+
+@login_required(login_url='twitter:login_user')
+def create_tweet(request):
+    form = TweetFrom(request.POST or None)
+
+    if form.is_valid():
+        tweet = form.save(commit=False)
+        tweet.user = request.user
+        tweet.save()
+
+    return redirect('twitter:index')
+
+
+@login_required(login_url='twitter:login_user')
+def add_follow(request, user_id):
+    follower = get_object_or_404(User, pk=user_id)
+    follow = Follow(user =request.user, follower = follower)
+    follow.save()
+    return redirect('twitter:index')
+
+
+@login_required(login_url='twitter:login_user')
+def remove_follow(request, user_id):
+    follower = get_object_or_404(Follow, pk=user_id)
+    if follower.user == request.user:
+        follower.delete()
+    return redirect('twitter:index')
+
+

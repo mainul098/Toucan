@@ -20,3 +20,17 @@ body{
     background-color: #C9F0DD;
     border: 1em solid transparent;
 }
+
+.tweet-panel{
+    background-color: #337ab7;
+    border: 1em solid transparent;
+}
+
+.panel .h3{
+    border-bottom: 1px solid #CCC;
+    padding-bottom: 5px;
+}
+
+.row.item{
+    padding-bottom: 1em;
+}
