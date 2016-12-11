@@ -1,14 +1,33 @@
 {% extends 'base.html' %}
 
 {%  block body %}
-    {% if latest_tweets %}
-        <ul>
-        {% for tweet in latest_tweets %}
-            <li>{{ tweet.content }}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No Tweets are available.</p>
-    {% endif %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 panel">
+                <div class="h4">
+                    <a href="{% url 'twitter:profile_user' %}">
+                        {{ user.get_full_name }}</a>
+                </div>
+                <div class="h5">@{{ user.get_username }}</div>
+            </div>
+            <div class="col-md-8 col-md-offset-1">
+                {% if latest_tweets %}
+                    {% for tweet in latest_tweets %}
+                        <div class="row">
+                            <div class="col-md-12 panel">
+                                <small> @{{ tweet.user }} - {{ tweet.modified_date}}</small>
+                                <div class="lead">{{ tweet.content }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="row">
+                        <div class="col-md-12 panel">
+                            <div class="lead">No Tweets are available.</div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 {% endblock %}
-

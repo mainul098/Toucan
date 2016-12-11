@@ -1,0 +1,22 @@
+body{
+    font-family: "Roboto", Corbel, Avenir, "Lucida Grande", "Lucida Sans", sans-serif;
+    color: #0C3C26;
+    background-color: #f8f8f8;
+}
+
+.navbar {
+    border-radius: 0;
+    background-color:#0C3C26;
+    border: none;
+}
+
+.navbar-brand {
+    font-family: 'Satisfy', cursive;
+    font-size: x-large;
+    color: darkred;
+}
+
+.panel{
+    background-color: #C9F0DD;
+    border: 1em solid transparent;
+}

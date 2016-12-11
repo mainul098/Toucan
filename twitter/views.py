@@ -8,7 +8,7 @@ def index(request):
     if not request.user.is_authenticated():
         return render(request, 'twitter/login.html')
     else:
-        latest_tweets = Tweet.objects.order_by('created_date')
+        latest_tweets = Tweet.objects.filter(user__followers__user=request.user).order_by('-modified_date')[:10]
         return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
 
 
@@ -49,8 +49,7 @@ def register_user(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                latest_tweets = Tweet.objects.order_by('created_date')
-                return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
+                return redirect('twitter:index')
     context = {
         "form": form,
     }
@@ -58,5 +57,5 @@ def register_user(request):
 
 
 def profile(request):
-    latest_tweets = Tweet.objects.filter(user__username=request.user.username)
+    latest_tweets = Tweet.objects.filter(user=request.user)
     return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
