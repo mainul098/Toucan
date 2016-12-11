@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from .forms import UserForm
 from .models import Tweet
@@ -29,8 +29,7 @@ def login_user(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                latest_tweets = Tweet.objects.order_by('created_date')
-                return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
+                return redirect('twitter:index')
             else:
                 return render(request, 'twitter/login.html', {'error_message': 'Your account has been disabled'})
         else:
@@ -57,3 +56,7 @@ def register_user(request):
     }
     return render(request, 'twitter/register.html', context)
 
+
+def profile(request):
+    latest_tweets = Tweet.objects.filter(user__username=request.user.username)
+    return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
