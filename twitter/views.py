@@ -1,17 +1,59 @@
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-
-from twitter.models import get_follower_tweets, Tweet
+from django.contrib.auth import authenticate, login
+from .forms import UserForm
+from .models import Tweet
 
 
 def index(request):
-    latest_tweets = Tweet.objects.order_by('created_date')
-    context = {'latest_tweets': latest_tweets}
-    return render(request, 'twitter/index.html', context)
+    if not request.user.is_authenticated():
+        return render(request, 'twitter/login.html')
+    else:
+        latest_tweets = Tweet.objects.order_by('created_date')
+        return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
 
 
-@login_required
-def timeline(request):
-    user = request.user
-    tweets = get_follower_tweets(user)
-    return render(request, 'timeline.html', {'tweets': tweets, 'user': user})
+def logout(request):
+    logout(request)
+    form = UserForm(request.POST or None)
+    context = {
+        "form": form,
+    }
+    return render(request, 'twitter/login.html', context)
+
+
+def login(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                latest_tweets = Tweet.objects.order_by('created_date')
+                return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
+            else:
+                return render(request, 'twitter/login.html', {'error_message': 'Your account has been disabled'})
+        else:
+            return render(request, 'twitter/login.html', {'error_message': 'Invalid login'})
+    return render(request, 'twitter/login.html')
+
+
+def register(request):
+    form = UserForm(request.POST or None)
+    if form.is_valid():
+        user = form.save(commit=False)
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        user.set_password(password)
+        user.save()
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                latest_tweets = Tweet.objects.order_by('created_date')
+                return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
+    context = {
+        "form": form,
+    }
+    return render(request, 'twitter/register.html', context)
+
