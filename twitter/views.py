@@ -58,16 +58,28 @@ def index(request):
     if not request.user.is_authenticated():
         return render(request, 'twitter/login.html')
     else:
-        latest_tweets = Tweet.objects.filter(user__followers__user=request.user).order_by('-modified_date') | Tweet.objects.filter(user=request.user).order_by('-modified_date')
+        latest_tweets = Tweet.objects.filter(user__followers__user=request.user).order_by(
+            '-modified_date') | Tweet.objects.filter(user=request.user).order_by('-modified_date')
         candidate_follower = User.objects.exclude(followers__user=request.user).exclude(username=request.user.username)
-        return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets, 'candidate_follower': candidate_follower})
+        context = {
+            'latest_tweets': latest_tweets,
+            'followers': User.objects.filter(followers__user=request.user),
+            'candidate_follower': candidate_follower
+        }
+
+        return render(request, 'twitter/index.html', context)
 
 
 @login_required(login_url='twitter:login_user')
 def profile(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     latest_tweets = Tweet.objects.filter(user=user)
-    return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
+
+    context = {
+        'latest_tweets': latest_tweets,
+        'user_info': user
+    }
+    return render(request, 'twitter/index.html', context)
 
 
 @login_required(login_url='twitter:login_user')
@@ -85,16 +97,16 @@ def create_tweet(request):
 @login_required(login_url='twitter:login_user')
 def add_follow(request, user_id):
     follower = get_object_or_404(User, pk=user_id)
-    follow = Follow(user =request.user, follower = follower)
+    follow = Follow(user=request.user, follower=follower)
     follow.save()
     return redirect('twitter:index')
 
 
 @login_required(login_url='twitter:login_user')
 def remove_follow(request, user_id):
-    follower = get_object_or_404(Follow, pk=user_id)
-    if follower.user == request.user:
+    follower = Follow.objects.get(follower_id=user_id, user=request.user)
+
+    if follower is not None:
         follower.delete()
+
     return redirect('twitter:index')
-
-

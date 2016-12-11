@@ -6,13 +6,45 @@
             <div class="col-md-4">
                 <div class="row">
                     <div class="col-md-12 panel">
-                        <div class="h4">
-                            <a href="{% url 'twitter:profile_user' user.id %}">
+                        {% if user_info %}
+                            <div class="h4">
+                                <a href="{% url 'twitter:profile_user' user_info.id %}"> {{ user_info.get_full_name }}</a>
+                            </div>
+                            <div class="h5">@{{ user_info.get_username }}</div>
+                        {% else %}
+                            <div class="h4">
+                                <a href="{% url 'twitter:profile_user' user.id %}">
                                 {{ user.get_full_name }}</a>
-                        </div>
-                        <div class="h5">@{{ user.get_username }}</div>
+                            </div>
+                            <div class="h5">@{{ user.get_username }}</div>
+                        {% endif %}
                     </div>
                 </div>
+                {% if followers %}
+                        <div class="row">
+                            <div class="col-md-12 panel">
+                                <div class="h3">Followings</div>
+                                    {% for follower in followers %}
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <div class="row item">
+                                                    <div class="col-md-12">
+                                                        <a href="{% url 'twitter:profile_user' follower.id %}"><strong>{{ follower.get_full_name }} </strong> </a>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        @{{ follower.get_username }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <a class="btn btn-warning" href="{% url 'twitter:unfollow' follower.id %}"> <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Un Follow </a>
+                                            </div>
+                                        </div>
+
+                                    {% endfor %}
+                                </div>
+                        </div>
+                    {% endif %}
                 {% if candidate_follower %}
                     <div class="row">
                         <div class="col-md-12 panel">
@@ -22,7 +54,7 @@
                                         <div class="col-md-8">
                                             <div class="row item">
                                                 <div class="col-md-12">
-                                                    <strong>{{ follower.get_full_name }} </strong>
+                                                    <a href="{% url 'twitter:profile_user' follower.id %}"><strong>{{ follower.get_full_name }} </strong> </a>
                                                 </div>
                                                 <div class="col-md-12">
                                                     @{{ follower.get_username }}
@@ -30,7 +62,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-4">
-                                            <a class="btn btn-primary" href="{% url 'twitter:follow' follower.id %}"> Follow </a>
+                                            <a class="btn btn-primary" href="{% url 'twitter:follow' follower.id %}"> <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Follow </a>
                                         </div>
                                     </div>
 
@@ -46,7 +78,7 @@
                         {% csrf_token %}
                         <div class="form-group">
                             <div class="col-sm-12">
-                                <textarea id="id_content" name="content" rows="3" class="form-control" ></textarea>
+                                <textarea id="id_content" name="content" rows="3" class="form-control" placeholder="What's Happening?" ></textarea>
                             </div>
                         </div>
                         <div class="form-group">
@@ -60,7 +92,7 @@
                     {% for tweet in latest_tweets %}
                         <div class="row">
                             <div class="col-md-12 panel">
-                                <strong>{{ tweet.user.get_full_name }} </strong>  @{{ tweet.user }} - {{ tweet.modified_date}}
+                                <a href="{% url 'twitter:profile_user' tweet.user.id %}"> <strong>{{ tweet.user.get_full_name }} </strong> </a> @{{ tweet.user }} - {{ tweet.modified_date}}
                                 <div class="lead">{{ tweet.content }}</div>
                             </div>
                         </div>
