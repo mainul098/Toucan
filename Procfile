@@ -1,1 +1,1 @@
-web: gunicorn Toucan.wsgi
+web: gunicorn toucan.wsgi
