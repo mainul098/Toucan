@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{%  block content %}
+{%  block body %}
     {% if latest_tweets %}
         <ul>
         {% for tweet in latest_tweets %}
@@ -11,3 +11,4 @@
         <p>No Tweets are available.</p>
     {% endif %}
 {% endblock %}
+

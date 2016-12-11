@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from .forms import UserForm
 from .models import Tweet
 
@@ -12,7 +12,7 @@ def index(request):
         return render(request, 'twitter/index.html', {'latest_tweets': latest_tweets})
 
 
-def logout(request):
+def logout_user(request):
     logout(request)
     form = UserForm(request.POST or None)
     context = {
@@ -21,7 +21,7 @@ def logout(request):
     return render(request, 'twitter/login.html', context)
 
 
-def login(request):
+def login_user(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
@@ -38,7 +38,7 @@ def login(request):
     return render(request, 'twitter/login.html')
 
 
-def register(request):
+def register_user(request):
     form = UserForm(request.POST or None)
     if form.is_valid():
         user = form.save(commit=False)
